@@ -82,7 +82,7 @@ class HumanPlayer
 
   def check_guess(guess)
     puts "Player guessed #{guess}"
-    puts "What positions does that occur in?"
+    puts "What index does that letter occur in? Press Enter for none."
 
     positions = gets.chomp.split(",").map { |str| Integer(str) }
   end
@@ -95,7 +95,7 @@ end
 
 class ComputerPlayer
   attr_reader :dictionary, :secret_word
-  attr_accessor :dont_guess
+  attr_accessor :candidate_words
 
   def self.player_with_dict_file(dict_file_name)
     ComputerPlayer.new(File.readlines(dict_file_name).map(&:chomp))
@@ -103,8 +103,6 @@ class ComputerPlayer
 
   def initialize(dictionary)
     @dictionary = dictionary
-    @dont_guess = []
-
   end
 
   def pick_secret_word
@@ -134,16 +132,40 @@ class ComputerPlayer
   end
 
   def guess(board, remaining_guesses)
-    #Guesses a letter at random
-    guess = ("a".."z").to_a.sample
-    while dont_guess.include? guess
-      guess = ("a".."z").to_a.sample
+    # p candidate_words
+    freq_table = frequency_table(board)
+
+    most_frequent_letters = freq_table.sort_by { |letter, count| count }
+    letter, count = most_frequent_letters.last
+
+    letter
+  end
+
+  def frequency_table(board)
+    freq_table = Hash.new(0)
+    candidate_words.each do |word|
+      board.each_with_index do |letter, index|
+        freq_table[word[index]] += 1 if letter.nil?
+      end
     end
-    guess
+
+    freq_table
   end
 
   def handle_response(guess, response_indices)
-    dont_guess << guess
+    candidate_words.reject! do |word|
+      should_delete = false
+
+      word.split("").each_with_index do |letter, index|
+        if (letter == guess) && (!response_indices.include? index)
+          should_delete = true
+        elsif (letter != guess) && (response_indices.include? index)
+          should_delete = true
+        end
+      end
+
+      should_delete
+    end
   end
 
 end
