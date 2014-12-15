@@ -75,7 +75,7 @@ class HumanPlayer
     begin
       Integer(gets.chomp)
     rescue ArgumentError
-      puts "Enter a vlid length."
+      puts "Enter a valid length."
       retry
     end
   end
