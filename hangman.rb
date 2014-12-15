@@ -10,6 +10,10 @@ class Hangman
     @remaining_guesses = MAX_GUESSES
   end
 
+  def self.prettify_board(board)
+    board.map { |elem| elem == nil ? "_" : elem } * " "
+  end
+
   def play
     secret_length = referee.pick_secret_word
     guesser.register_secret_length(secret_length)
@@ -17,6 +21,7 @@ class Hangman
 
     while @remaining_guesses > 0
       take_turn
+      p Hangman.prettify_board(current_board)
 
       if won?
         puts "Guesser wins!"
@@ -59,7 +64,7 @@ class HumanPlayer
 
   def guess(board, remaining_guesses)
     p "Number of guesses left is #{remaining_guesses}"
-    p board
+    p Hangman.prettify_board(board)
     puts "Input guess:"
     gets.chomp
   end
@@ -90,6 +95,7 @@ end
 
 class ComputerPlayer
   attr_reader :dictionary, :secret_word
+  attr_accessor :dont_guess
 
   def self.player_with_dict_file(dict_file_name)
     ComputerPlayer.new(File.readlines(dict_file_name).map(&:chomp))
@@ -97,6 +103,8 @@ class ComputerPlayer
 
   def initialize(dictionary)
     @dictionary = dictionary
+    @dont_guess = []
+
   end
 
   def pick_secret_word
@@ -125,11 +133,35 @@ class ComputerPlayer
     secret_word
   end
 
+  def guess(board, remaining_guesses)
+    #Guesses a letter at random
+    guess = ("a".."z").to_a.sample
+    while dont_guess.include? guess
+      guess = ("a".."z").to_a.sample
+    end
+    guess
+  end
+
+  def handle_response(guess, response_indices)
+    dont_guess << guess
+  end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
-  guesser = HumanPlayer.new
-  referee = ComputerPlayer.player_with_dict_file("dictionary.txt")
+  p "Guesser: Computer (yes/no)?"
+  if gets.chomp == "yes"
+    guesser = ComputerPlayer.player_with_dict_file("dictionary.txt")
+  else
+    guesser = HumanPlayer.new
+  end
+
+  p "Referee: Computer (yes/no)?"
+  if gets.chomp == "yes"
+    referee = ComputerPlayer.player_with_dict_file("dictionary.txt")
+  else
+    referee = HumanPlayer.new
+  end
 
   Hangman.new(guesser, referee).play
 end
