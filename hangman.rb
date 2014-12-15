@@ -64,28 +64,28 @@ class HumanPlayer
     gets.chomp
   end
 
-  # def pick_secret_word
-  #   puts "Think of a secret word. How long is it?"
-  #
-  #   begin
-  #     Integer(gets.chomp)
-  #   rescue ArgumentError
-  #     puts "Enter a vlid length."
-  #     retry
-  #   end
-  # end
-  #
-  # def check_guess(guess)
-  #   puts "Player guessed #{guess}"
-  #   puts "What positions does that occur in?"
-  #
-  #   positions = gets.chomp.split(",").map { |str| Integer(str) }
-  # end
-  #
-  # def require_secret
-  #   puts "What word were you thinking of?"
-  #   gets.chomp
-  # end
+  def pick_secret_word
+    puts "Think of a secret word. How long is it?"
+
+    begin
+      Integer(gets.chomp)
+    rescue ArgumentError
+      puts "Enter a vlid length."
+      retry
+    end
+  end
+
+  def check_guess(guess)
+    puts "Player guessed #{guess}"
+    puts "What positions does that occur in?"
+
+    positions = gets.chomp.split(",").map { |str| Integer(str) }
+  end
+
+  def require_secret
+    puts "What word were you thinking of?"
+    gets.chomp
+  end
 end
 
 class ComputerPlayer
